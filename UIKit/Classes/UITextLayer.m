@@ -107,6 +107,9 @@
 
     [[[containerView window].screen UIKitView] addSubview:clipView];
     
+    //deal with 10.8 geometry differences.
+    self.geometryFlipped = [[[[containerView window].screen UIKitView] layer] isGeometryFlipped];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateScrollViewContentOffset) name:NSViewBoundsDidChangeNotification object:clipView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hierarchyDidChangeNotification:) name:UIViewFrameDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hierarchyDidChangeNotification:) name:UIViewBoundsDidChangeNotification object:nil];
