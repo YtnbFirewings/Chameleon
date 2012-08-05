@@ -52,11 +52,6 @@
     [[self nextResponder] mouseMoved:delta withEvent:event];
 }
 
-- (void)mouseHovered:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    [[self nextResponder] mouseHovered:touches withEvent:event];
-}
-
 - (id)mouseCursorForEvent:(UIEvent *)event
 {
     return [[self nextResponder] mouseCursorForEvent:event];

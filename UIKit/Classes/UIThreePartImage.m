@@ -1,33 +1,3 @@
-//
-// UIThreePartImage.m
-//
-// Original Author:
-//  The IconFactory
-//
-// Contributor: 
-//	Zac Bowling <zac@seatme.com>
-//
-// Copyright (C) 2011 SeatMe, Inc http://www.seatme.com
-//
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-// 
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 /*
  * Copyright (c) 2011, The Iconfactory. All rights reserved.
  *
@@ -58,118 +28,60 @@
  */
 
 #import "UIThreePartImage.h"
-#import "UIGraphics.h"
+#import "UIImageRep.h"
 
 @implementation UIThreePartImage
 
-- (id)initWithCGImage:(CGImageRef)theImage capSize:(NSInteger)capSize vertical:(BOOL)isVertical
+- (id)initWithRepresentations:(NSArray *)reps capSize:(NSInteger)capSize vertical:(BOOL)isVertical
 {
-    if ((self=[super initWithCGImage:theImage])) {
-        const CGSize size = self.size;
-        
+    if ((self=[super _initWithRepresentations:reps])) {
+        _capSize = capSize;
         _vertical = isVertical;
-        
-        if (_vertical) {
-            const CGFloat stretchyHeight = (capSize < size.height)? 1 : 0;
-            const CGFloat bottomCapHeight = size.height - capSize - stretchyHeight;
-            
-            _capInsets = UIEdgeInsetsMake(0, capSize, 0, capSize);
-            
-            _startCap = CGImageCreateWithImageInRect(theImage, CGRectMake(0,0,size.width,capSize));
-            _centerFill = CGImageCreateWithImageInRect(theImage, CGRectMake(0,capSize,size.width,stretchyHeight));
-            _endCap = CGImageCreateWithImageInRect(theImage, CGRectMake(0,size.height-bottomCapHeight,size.width,bottomCapHeight));
-        } else {
-            const CGFloat stretchyWidth = (capSize < size.width)? 1 : 0;
-            const CGFloat rightCapWidth = size.width - capSize - stretchyWidth;
-            _capInsets = UIEdgeInsetsMake(capSize, 0, capSize, 0);
-            
-            _startCap = CGImageCreateWithImageInRect(theImage, CGRectMake(0,0,capSize,size.height));
-            _centerFill = CGImageCreateWithImageInRect(theImage, CGRectMake(capSize,0,stretchyWidth,size.height));
-            _endCap = CGImageCreateWithImageInRect(theImage, CGRectMake(size.width-rightCapWidth,0,rightCapWidth,size.height));
-            
-        }
     }
     return self;
-}
-
-- (id)initWithCGImage:(CGImageRef)theImage capLeft:(CGFloat)capLeft capRight:(CGFloat)capRight 
-{
-    if ((self=[super initWithCGImage:theImage])) {
-        const CGSize size = self.size;
-        
-        _vertical = NO;
-        
-        const CGFloat stretchyWidth = size.width - capRight - capLeft;
-        
-        _capInsets = UIEdgeInsetsMake(0, capLeft, 0, capRight);
-        
-        _startCap = CGImageCreateWithImageInRect(theImage, CGRectMake(0,0,capLeft,size.height));
-        _centerFill = CGImageCreateWithImageInRect(theImage, CGRectMake(capLeft,0,stretchyWidth,size.height));
-        _endCap = CGImageCreateWithImageInRect(theImage, CGRectMake(size.width-capRight,0,capRight,size.height));
-    }
-    return self;
-}
-
-- (id)initWithCGImage:(CGImageRef)theImage capTop:(CGFloat)capTop capBottom:(CGFloat)capBottom 
-{
-    if ((self=[super initWithCGImage:theImage])) {
-        const CGSize size = self.size;
-        
-        _vertical = YES;
-        
-        const CGFloat stretchyHeight = size.height - capTop - capBottom;
-        
-        _capInsets = UIEdgeInsetsMake(capTop,0, capBottom, 0);
-        
-        _startCap = CGImageCreateWithImageInRect(theImage, CGRectMake(0,0,size.width,capTop));
-        _centerFill = CGImageCreateWithImageInRect(theImage, CGRectMake(0,capTop,size.width,stretchyHeight));
-        _endCap = CGImageCreateWithImageInRect(theImage, CGRectMake(0,size.height-capBottom,size.width,capBottom));
-    }
-    return self;
-}
-
-
-- (void)dealloc
-{
-    if (_startCap)
-        CGImageRelease(_startCap);
-    if (_centerFill)
-        CGImageRelease(_centerFill);
-    if (_endCap)
-        CGImageRelease(_endCap);
-    [super dealloc];
 }
 
 - (NSInteger)leftCapWidth
 {
-    return _vertical? 0 : CGImageGetWidth(_startCap);
+    return _vertical? 0 : _capSize;
 }
 
 - (NSInteger)topCapHeight
 {
-    return _vertical ? CGImageGetHeight(_startCap) : 0;
+    return _vertical? _capSize : 0;
 }
 
-- (UIEdgeInsets)capInsets 
+- (void)_drawRepresentation:(UIImageRep *)rep inRect:(CGRect)rect
 {
-    return _capInsets;
-}
+    const CGSize size = self.size;
+    
+    if ((_vertical && size.height >= rect.size.height) || (!_vertical && size.width >= rect.size.width)) {
+        [super _drawRepresentation:rep inRect:rect];
+    } else if (_vertical) {
+        const CGFloat stretchyHeight = (_capSize < size.height)? 1 : 0;
+        const CGFloat bottomCapHeight = size.height - _capSize - stretchyHeight;
+        
+        [rep drawInRect:CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), rect.size.width, _capSize)
+               fromRect:CGRectMake(0, 0, size.width, _capSize)];
 
-- (void)drawInRect:(CGRect)rect
-{
-    CGRect startCapRect = CGRectMake(rect.origin.x, rect.origin.y, _vertical ? rect.size.width : CGImageGetWidth(_startCap), _vertical ? CGImageGetHeight(_startCap) : rect.size.height);
-    CGSize endCapSize = CGSizeMake(CGImageGetWidth(_endCap), CGImageGetHeight(_endCap));
-    CGRect endCapRect = _vertical ? CGRectMake(rect.origin.x, CGRectGetMaxY(rect) - endCapSize.height, rect.size.width, endCapSize.height) : CGRectMake(CGRectGetMaxX(rect) - endCapSize.width, rect.origin.y, endCapSize.width, rect.size.height);
-    CGRect centerFillRect = _vertical ? CGRectMake(rect.origin.x, CGRectGetMaxY(startCapRect), rect.size.width, rect.size.height - (startCapRect.size.height + endCapRect.size.height)) : CGRectMake(CGRectGetMaxX(startCapRect), rect.origin.y, rect.size.width - (startCapRect.size.width + endCapRect.size.width), rect.size.height);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextSaveGState(ctx);
-	CGContextScaleCTM(ctx, 1, -1);
-	CGContextTranslateCTM(ctx, 0, -rect.size.height);
-    CGContextDrawImage(ctx, startCapRect, _startCap);
-    CGContextDrawImage(ctx, endCapRect, _endCap);
-    CGContextClipToRect(ctx, centerFillRect); // bug in CGContextDrawTiledImage, has to be clipped before drawing
-    CGContextDrawTiledImage(ctx, centerFillRect, _centerFill);
-    CGContextRestoreGState(ctx);
+        [rep drawInRect:CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect)+_capSize, rect.size.width, rect.size.height-_capSize-bottomCapHeight)
+               fromRect:CGRectMake(0, _capSize, size.width, stretchyHeight)];
+
+        [rep drawInRect:CGRectMake(CGRectGetMinX(rect), CGRectGetMaxY(rect)-bottomCapHeight, rect.size.width, bottomCapHeight)
+               fromRect:CGRectMake(0, size.height-bottomCapHeight, size.width, bottomCapHeight)];
+    } else {
+        const CGFloat stretchyWidth = (_capSize < size.width)? 1 : 0;
+        const CGFloat rightCapWidth = size.width - _capSize - stretchyWidth;
+        
+        [rep drawInRect:CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), _capSize, rect.size.height)
+               fromRect:CGRectMake(0, 0, _capSize, size.height)];
+
+        [rep drawInRect:CGRectMake(CGRectGetMinX(rect)+_capSize, CGRectGetMinY(rect), rect.size.width-_capSize-rightCapWidth, rect.size.height)
+               fromRect:CGRectMake(_capSize, 0, stretchyWidth, size.height)];
+        
+        [rep drawInRect:CGRectMake(CGRectGetMinX(rect)+rect.size.width-rightCapWidth, CGRectGetMinY(rect), rightCapWidth, rect.size.height)
+               fromRect:CGRectMake(size.width-rightCapWidth, 0, rightCapWidth, size.height)];
+    }
 }
 
 @end

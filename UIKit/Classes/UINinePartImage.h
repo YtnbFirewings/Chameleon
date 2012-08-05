@@ -30,22 +30,11 @@
 #import "UIImage+UIPrivate.h"
 
 @interface UINinePartImage : UIImage {
-    UIEdgeInsets _capInsets;
-    
-    CGImageRef _topLeftCorner;
-    CGImageRef _topEdgeFill;
-    CGImageRef _topRightCorner;
-    CGImageRef _leftEdgeFill;
-    CGImageRef _centerFill;
-    CGImageRef _rightEdgeFill;
-    CGImageRef _bottomLeftCorner;
-    CGImageRef _bottomEdgeFill;
-    CGImageRef _bottomRightCorner;
+@private
+    NSInteger _leftCapWidth;
+    NSInteger _topCapHeight;
 }
 
-
-- (id)initWithCGImage:(CGImageRef)theImage leftCapWidth:(NSInteger)leftCapWidth topCapHeight:(NSInteger)topCapHeight;
-
-- (id)initWithCGImage:(CGImageRef)theImage edge:(UIEdgeInsets)edge;
+- (id)initWithRepresentations:(NSArray *)reps leftCapWidth:(NSInteger)leftCapWidth topCapHeight:(NSInteger)topCapHeight;
 
 @end

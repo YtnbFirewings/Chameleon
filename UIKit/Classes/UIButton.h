@@ -40,7 +40,9 @@ typedef enum {
 
 @class UILabel, UIImageView, UIImage;
 
-@interface UIButton : UIControl <NSCoding> {
+@interface UIButton : UIControl {
+@protected
+    UIButtonType _buttonType;
 @private
     UILabel *_titleLabel;
     UIImageView *_imageView;
@@ -55,15 +57,9 @@ typedef enum {
     NSMutableDictionary *_content;
     UIImage *_adjustedHighlightImage;
     UIImage *_adjustedDisabledImage;
-	CGSize originalShadowOffset;
-    struct {
-        UIButtonType buttonType : 8;
-    } _buttonFlags;
 }
 
 + (id)buttonWithType:(UIButtonType)buttonType;
-
-- (id)initWithFrame:(CGRect)frame;
 
 - (void)setTitle:(NSString *)title forState:(UIControlState)state;
 - (void)setTitleColor:(UIColor *)color forState:(UIControlState)state;

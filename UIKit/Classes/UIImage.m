@@ -1,33 +1,3 @@
-//
-// UIImage.m
-//
-// Original Author:
-//  The IconFactory
-//
-// Contributor: 
-//	Zac Bowling <zac@seatme.com>
-//
-// Copyright (C) 2011 SeatMe, Inc http://www.seatme.com
-//
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-// 
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 /*
  * Copyright (c) 2011, The Iconfactory. All rights reserved.
  *
@@ -62,142 +32,64 @@
 #import "UINinePartImage.h"
 #import "UIGraphics.h"
 #import "UIPhotosAlbum.h"
-#import <AppKit/NSImage.h>
+#import "UIImageRep.h"
 
-@implementation UIImage 
+@implementation UIImage
 
-- (id)initWithNSImage:(NSImage *)theImage
++ (UIImage *)_imageNamed:(NSString *)name
 {
-    if (theImage) {
-        return [self initWithCGImage:[theImage CGImageForProposedRect:NULL context:NULL hints:nil]];
-    } else {
-        [self release];
-        return nil;
+    NSBundle *bundle = [NSBundle mainBundle];
+    NSString *path = [[bundle resourcePath] stringByAppendingPathComponent:name];
+    UIImage *img = [self imageWithContentsOfFile:path];
+    
+    if (!img) {
+        // if nothing is found, try again after replacing any underscores in the name with dashes.
+        // I don't know why, but UIKit does something similar. it probably has a good reason and it might not be this simplistic, but
+        // for now this little hack makes Ramp Champ work. :)
+        path = [[[bundle resourcePath] stringByAppendingPathComponent:[[name stringByDeletingPathExtension] stringByReplacingOccurrencesOfString:@"_" withString:@"-"]] stringByAppendingPathExtension:[name pathExtension]];
+        img = [self imageWithContentsOfFile:path];
     }
+    
+    return img;
+}
+
++ (id)imageNamed:(NSString *)name
+{
+    UIImage *img = [self _cachedImageForName:name];
+    
+    if (!img) {
+        // as per the iOS docs, if it fails to find a match with the bare name, it re-tries by appending a png file extension
+        img = [self _imageNamed:name] ?: [self _imageNamed:[name stringByAppendingPathExtension:@"png"]];
+        [self _cacheImage:img forName:name];
+    }
+    
+    return img;
+}
+
+- (id)initWithContentsOfFile:(NSString *)imagePath
+{
+    return [self _initWithRepresentations:[UIImageRep imageRepsWithContentsOfFile:imagePath]];
 }
 
 - (id)initWithData:(NSData *)data
 {
-    if (data) {
-        const NSDictionary *options = [NSDictionary dictionaryWithObject:(id)kCFBooleanFalse forKey:(NSString*)kCGImageSourceShouldCache]; // no caching
-        CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)data, (CFDictionaryRef)options);
-        if (!imageSource) {
-            [self release];
-            return nil;
-        }
-        CGImageRef image = (CGImageRef)[(id)CGImageSourceCreateImageAtIndex(imageSource, 0, (CFDictionaryRef)options)autorelease];
-        CFRelease(imageSource);
-        return [self initWithCGImage:image];
-    } else {
-        [self release];
-        return nil;
-    }
-}
-
-- (id)initWithContentsOfFile:(NSString *)path
-{
-    const NSDictionary *options = [NSDictionary dictionaryWithObject:(id)kCFBooleanFalse forKey:(NSString*)kCGImageSourceShouldCache];
-    NSString *imagePath = [isa _pathForFile:path];
-    if (!imagePath) {
-        [self release];
-        return nil;
-    }
-    NSURL *url = [NSURL fileURLWithPath:imagePath];
-    CGImageSourceRef imageSource = CGImageSourceCreateWithURL((CFURLRef)url, (CFDictionaryRef)options);
-    if (!imageSource) {
-        [self release];
-        return nil;
-    }
-    CGImageRef image = (CGImageRef)[(id)CGImageSourceCreateImageAtIndex(imageSource, 0, NULL) autorelease];
-    CFRelease(imageSource);
-    return [self initWithCGImage:image];
+    return [self _initWithRepresentations:[NSArray arrayWithObjects:[[[UIImageRep alloc] initWithData:data] autorelease], nil]];
 }
 
 - (id)initWithCGImage:(CGImageRef)imageRef
 {
-    if (!imageRef) {
-        [self release];
-        return nil;
-    } else if ((self=[super init])) {
-        _image = imageRef;
-        CGImageRetain(_image);
-    }
-    return self;
+    return [self initWithCGImage:imageRef scale:1 orientation:UIImageOrientationUp];
 }
 
-- (id) initWithCoder:(NSCoder*)coder
+- (id)initWithCGImage:(CGImageRef)imageRef scale:(CGFloat)scale orientation:(UIImageOrientation)orientation
 {
-    if (nil != (self = [super init])) {
-        /* XXX: Implement Me */
-    }
-    return self;
+    return [self _initWithRepresentations:[NSArray arrayWithObjects:[[[UIImageRep alloc] initWithCGImage:imageRef scale:scale] autorelease], nil]];
 }
-
-- (void) encodeWithCoder:(NSCoder*)coder
-{
-    [self doesNotRecognizeSelector:_cmd];
-}
-
 
 - (void)dealloc
 {
-    if (_image) CGImageRelease(_image);
+    [_representations release];
     [super dealloc];
-}
-
-+ (UIImage *)_loadImageNamed:(NSString *)name
-{
-    if ([name length] > 0) {
-        NSString *macName = [self _macPathForFile:name];
-        
-        // first check for @mac version of the name
-        UIImage *cachedImage = [self _cachedImageForName:macName];
-        if (!cachedImage) {
-            // otherwise try again with the original given name
-            cachedImage = [self _cachedImageForName:name];
-        }
-        
-        if (!cachedImage) {
-            // okay, we couldn't find a cached version so now lets first try to make an original with the @mac name.
-            // if that fails, try to make it with the original name.
-            NSBundle *bundle = [NSBundle mainBundle];
-            NSString *path = [bundle pathForImageResource:macName];
-            if (!path) {
-                path = [bundle pathForImageResource:name];
-            }
-            if (path) {
-                NSURL *url = [NSURL fileURLWithPath:path];
-                // the UIImage class handles the caching, so we don't need Core Graphics to do it
-                const NSDictionary *options = [NSDictionary dictionaryWithObject:(id)kCFBooleanFalse forKey:(NSString*)kCGImageSourceShouldCache];
-                CGImageSourceRef imageSource = CGImageSourceCreateWithURL((CFURLRef)url, (CFDictionaryRef)options);
-                if (!imageSource) {
-                    return nil; 
-                }
-                CGImageRef image = (CGImageRef)[(id)CGImageSourceCreateImageAtIndex(imageSource, 0, (CFDictionaryRef)options) autorelease];
-                CFRelease(imageSource);
-                cachedImage = [[[self alloc] initWithCGImage:image] autorelease];
-                [self _cacheImage:cachedImage forName:name];
-            }
-        }
-        return cachedImage;
-    } else {
-        return nil;
-    }
-}
-
-+ (UIImage *)imageNamed:(NSString *)name
-{
-    // first try it with the given name
-    UIImage *image = [self _loadImageNamed:name];
-    
-    // if nothing is found, try again after replacing any underscores in the name with dashes.
-    // I don't know why, but UIKit does something similar. it probably has a good reason and it might not be this simplistic, but
-    // for now this little hack makes Ramp Champ work. :)
-    if (!image) {
-        image = [self _loadImageNamed:[name stringByReplacingOccurrencesOfString:@"_" withString:@"-"]];
-    }
-    
-    return image;
 }
 
 + (UIImage *)imageWithData:(NSData *)data
@@ -215,69 +107,35 @@
     return [[[self alloc] initWithCGImage:imageRef] autorelease];
 }
 
++ (UIImage *)imageWithCGImage:(CGImageRef)imageRef scale:(CGFloat)scale orientation:(UIImageOrientation)orientation
+{
+    return [[[self alloc] initWithCGImage:imageRef scale:scale orientation:orientation] autorelease];
+}
+
 - (UIImage *)stretchableImageWithLeftCapWidth:(NSInteger)leftCapWidth topCapHeight:(NSInteger)topCapHeight
 {
     const CGSize size = self.size;
+
     if ((leftCapWidth == 0 && topCapHeight == 0) || (leftCapWidth >= size.width && topCapHeight >= size.height)) {
         return self;
     } else if (leftCapWidth <= 0 || leftCapWidth >= size.width) {
-        return [[[UIThreePartImage alloc] initWithCGImage:_image capSize:MIN(topCapHeight,size.height) vertical:YES] autorelease];
+        return [[[UIThreePartImage alloc] initWithRepresentations:[self _representations] capSize:MIN(topCapHeight,size.height) vertical:YES] autorelease];
     } else if (topCapHeight <= 0 || topCapHeight >= size.height) {
-        return [[[UIThreePartImage alloc] initWithCGImage:_image capSize:MIN(leftCapWidth,size.width) vertical:NO] autorelease];
+        return [[[UIThreePartImage alloc] initWithRepresentations:[self _representations] capSize:MIN(leftCapWidth,size.width) vertical:NO] autorelease];
     } else {
-        return [[[UINinePartImage alloc] initWithCGImage:_image leftCapWidth:leftCapWidth topCapHeight:topCapHeight] autorelease];
+        return [[[UINinePartImage alloc] initWithRepresentations:[self _representations] leftCapWidth:leftCapWidth topCapHeight:topCapHeight] autorelease];
     }
-}
-
-- (UIImage *)resizableImageWithCapInsets:(UIEdgeInsets)capInsets 
-{
-    const CGSize size = self.size;
-    if (UIEdgeInsetsEqualToEdgeInsets(UIEdgeInsetsZero, capInsets)) {
-        return self;
-    } else if ((capInsets.left <= 0 || capInsets.left >= size.width) && (capInsets.right <= 0 || capInsets.right >= size.width)){
-        return [[[UIThreePartImage alloc] initWithCGImage:_image capTop:MIN(capInsets.top,size.height) capBottom:MIN(capInsets.bottom,size.height)] autorelease];
-    } else if ((capInsets.top <= 0 || capInsets.top >= size.height) && (capInsets.bottom <= 0 || capInsets.bottom >= size.height)) {
-        return [[[UIThreePartImage alloc] initWithCGImage:_image capLeft:MIN(capInsets.left,size.width) capRight:MIN(capInsets.right,size.width)] autorelease];
-    } else {
-        return [[[UINinePartImage alloc] initWithCGImage:_image edge:capInsets] autorelease];
-    }
-}
-
-- (void)drawAtPoint:(CGPoint)point blendMode:(CGBlendMode)blendMode alpha:(CGFloat)alpha
-{
-    const CGSize size = self.size;
-    [self drawInRect:CGRectMake(point.x,point.y,size.width,size.height) blendMode:blendMode alpha:alpha];
-}
-
-- (void)drawInRect:(CGRect)rect blendMode:(CGBlendMode)blendMode alpha:(CGFloat)alpha
-{
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextSaveGState(ctx);
-    CGContextSetBlendMode(ctx, blendMode);
-    CGContextSetAlpha(ctx, alpha);
-    [self drawInRect:rect];
-    CGContextRestoreGState(ctx);
-}
-
-- (void)drawAtPoint:(CGPoint)point
-{
-    const CGSize size = self.size;
-    [self drawInRect:CGRectMake(point.x,point.y,size.width,size.height)];
-}
-
-- (void)drawInRect:(CGRect)rect
-{
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextSaveGState(ctx);
-    CGContextTranslateCTM(ctx, rect.origin.x, rect.origin.y+rect.size.height);
-    CGContextScaleCTM(ctx, 1.0, -1.0);
-    CGContextDrawImage(ctx, CGRectMake(0,0,rect.size.width,rect.size.height), _image);
-    CGContextRestoreGState(ctx);
 }
 
 - (CGSize)size
 {
-    return CGSizeMake(CGImageGetWidth(_image), CGImageGetHeight(_image));
+    CGSize size = CGSizeZero;
+    UIImageRep *rep = [_representations lastObject];
+    const CGSize repSize = rep.imageSize;
+    const CGFloat scale = rep.scale;
+    size.width = repSize.width / scale;
+    size.height = repSize.height / scale;
+    return size;
 }
 
 - (NSInteger)leftCapWidth
@@ -290,14 +148,9 @@
     return 0;
 }
 
-- (UIEdgeInsets)capInsets 
-{
-    return UIEdgeInsetsZero;
-}
-
 - (CGImageRef)CGImage
 {
-    return _image;
+    return [self _bestRepresentationForProposedScale:2].CGImage;
 }
 
 - (UIImageOrientation)imageOrientation
@@ -305,19 +158,38 @@
     return UIImageOrientationUp;
 }
 
-- (NSImage *)NSImage
-{
-    return [[[NSImage alloc] initWithCGImage:_image size:NSSizeFromCGSize(self.size)] autorelease];
-}
-
-- (NSBitmapImageRep *)_NSBitmapImageRep
-{
-    return [[[NSBitmapImageRep alloc] initWithCGImage:_image] autorelease];
-}
-
 - (CGFloat)scale
 {
-    return 1.0;
+    return [self _bestRepresentationForProposedScale:2].scale;
+}
+
+- (void)drawAtPoint:(CGPoint)point blendMode:(CGBlendMode)blendMode alpha:(CGFloat)alpha
+{
+    [self drawInRect:(CGRect){point, self.size} blendMode:blendMode alpha:alpha];
+}
+
+- (void)drawInRect:(CGRect)rect blendMode:(CGBlendMode)blendMode alpha:(CGFloat)alpha
+{
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(ctx);
+    CGContextSetBlendMode(ctx, blendMode);
+    CGContextSetAlpha(ctx, alpha);
+
+    [self drawInRect:rect];
+    
+    CGContextRestoreGState(ctx);
+}
+
+- (void)drawAtPoint:(CGPoint)point
+{
+    [self drawInRect:(CGRect){point, self.size}];
+}
+
+- (void)drawInRect:(CGRect)rect
+{
+    if (rect.size.height > 0 && rect.size.width > 0) {
+        [self _drawRepresentation:[self _bestRepresentationForProposedScale:_UIGraphicsGetContextScaleFactor(UIGraphicsGetCurrentContext())] inRect:rect];
+    }
 }
 
 @end
@@ -338,10 +210,26 @@ BOOL UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(NSString *videoPath)
 
 NSData *UIImageJPEGRepresentation(UIImage *image, CGFloat compressionQuality)
 {
-    return [[image _NSBitmapImageRep] representationUsingType:NSJPEGFileType properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithDouble:compressionQuality] forKey:NSImageCompressionFactor]];
+    CFMutableDataRef data = CFDataCreateMutable(NULL, 0);
+    CGImageDestinationRef dest = CGImageDestinationCreateWithData(data, kUTTypeJPEG, 1, NULL);
+    CFNumberRef quality = CFNumberCreate(NULL, kCFNumberCGFloatType, &compressionQuality);
+    CFStringRef keys[] = { kCGImageDestinationLossyCompressionQuality };
+    CFTypeRef values[] = { quality };
+    CFDictionaryRef properties = CFDictionaryCreate(NULL, (const void **)&keys, (const void **)&values, 1, NULL, NULL);
+    CGImageDestinationAddImage(dest, image.CGImage, properties);
+    CFRelease(properties);
+    CFRelease(quality);
+    CGImageDestinationFinalize(dest);
+    CFRelease(dest);
+    return [(__bridge NSData *)data autorelease];
 }
 
 NSData *UIImagePNGRepresentation(UIImage *image)
 {
-    return [[image _NSBitmapImageRep] representationUsingType:NSPNGFileType properties:nil];
+    CFMutableDataRef data = CFDataCreateMutable(NULL, 0);
+    CGImageDestinationRef dest = CGImageDestinationCreateWithData(data, kUTTypePNG, 1, NULL);
+    CGImageDestinationAddImage(dest, image.CGImage, NULL);
+    CGImageDestinationFinalize(dest);
+    CFRelease(dest);
+    return [(__bridge NSData *)data autorelease];
 }

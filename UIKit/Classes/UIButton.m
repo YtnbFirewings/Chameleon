@@ -28,147 +28,61 @@
  */
 
 #import "UIButton.h"
-#import "UIButton+UIPrivate.h"
-#import "UIButtonContent.h"
 #import "UIControl+UIPrivate.h"
 #import "UILabel.h"
 #import "UIImage.h"
 #import "UIImageView+UIPrivate.h"
 #import "UIRoundedRectButton.h"
 #import "UIColor.h"
-#import <AppKit/AppKit.h>
-#include <tgmath.h>
 
-static NSString* const kUIAdjustsImageWhenDisabledKey = @"UIAdjustsImageWhenDisabled";
-static NSString* const kUIAdjustsImageWhenHighlightedKey = @"UIAdjustsImageWhenHighlighted";
-static NSString* const kUIButtonStatefulContentKey = @"UIButtonStatefulContent";
-static NSString* const kUIButtonTypeKey = @"UIButtonType";
-static NSString* const kUIFontKey = @"UIFont";
+static NSString *UIButtonContentTypeTitle = @"UIButtonContentTypeTitle";
+static NSString *UIButtonContentTypeTitleColor = @"UIButtonContentTypeTitleColor";
+static NSString *UIButtonContentTypeTitleShadowColor = @"UIButtonContentTypeTitleShadowColor";
+static NSString *UIButtonContentTypeBackgroundImage = @"UIButtonContentTypeBackgroundImage";
+static NSString *UIButtonContentTypeImage = @"UIButtonContentTypeImage";
 
-@implementation UIButton 
-@synthesize titleLabel = _titleLabel;
-@synthesize reversesTitleShadowWhenHighlighted = _reversesTitleShadowWhenHighlighted;
-@synthesize adjustsImageWhenHighlighted = _adjustsImageWhenHighlighted;
-@synthesize adjustsImageWhenDisabled = _adjustsImageWhenDisabled;
-@synthesize showsTouchWhenHighlighted = _showsTouchWhenHighlighted;
-@synthesize imageView = _imageView;
-@synthesize contentEdgeInsets = _contentEdgeInsets;
-@synthesize titleEdgeInsets = _titleEdgeInsets;
-@synthesize imageEdgeInsets = _imageEdgeInsets;
-
-static UIImage* detailDisclosureButtonImage;
-static UIImage* detailDisclosureButtonImagePressed;
-
-static NSNumber* kUIControlStateNormalKey;
-static NSNumber* kUIControlStateHighlightedKey;
-static NSNumber* kUIControlStateDisabledKey;
-static NSNumber* kUIControlStateSelectedKey;
-
-inline static NSNumber* _keyForState(NSInteger state) 
-{
-    switch (state) {
-        case UIControlStateNormal:      return kUIControlStateNormalKey;
-        case UIControlStateHighlighted: return kUIControlStateHighlightedKey;
-        case UIControlStateDisabled:    return kUIControlStateDisabledKey;
-        case UIControlStateSelected:    return kUIControlStateSelectedKey;
-        default:                        return [NSNumber numberWithInteger:state];
-    }
-    return nil;
-}
-
-+ (void) initialize
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSBundle* bundle = [NSBundle bundleForClass:[self class]];
-        detailDisclosureButtonImage = [[UIImage imageWithContentsOfFile:[bundle pathForImageResource:@"<UIButton> detailDisclosureButton"]] retain];
-        detailDisclosureButtonImagePressed = [[UIImage imageWithContentsOfFile:[bundle pathForImageResource:@"<UIButton> detailDisclosureButtonPressed"]] retain];
-
-        kUIControlStateNormalKey = [[NSNumber alloc] initWithInteger:UIControlStateNormal];
-        kUIControlStateHighlightedKey = [[NSNumber alloc] initWithInteger:UIControlStateHighlighted];
-        kUIControlStateDisabledKey = [[NSNumber alloc] initWithInteger:UIControlStateDisabled];
-        kUIControlStateSelectedKey = [[NSNumber alloc] initWithInteger:UIControlStateSelected];
-    });
-}
-
-+ (UIButtonContent*) _defaultContentForType:(UIButtonType)buttonType andState:(UIControlState)state
-{
-    return nil;
-}
+@implementation UIButton
+@synthesize buttonType=_buttonType, titleLabel=_titleLabel, reversesTitleShadowWhenHighlighted=_reversesTitleShadowWhenHighlighted;
+@synthesize adjustsImageWhenHighlighted=_adjustsImageWhenHighlighted, adjustsImageWhenDisabled=_adjustsImageWhenDisabled;
+@synthesize showsTouchWhenHighlighted=_showsTouchWhenHighlighted, imageView=_imageView, contentEdgeInsets=_contentEdgeInsets;
+@synthesize titleEdgeInsets=_titleEdgeInsets, imageEdgeInsets=_imageEdgeInsets;
 
 + (id)buttonWithType:(UIButtonType)buttonType
 {
     switch (buttonType) {
-        case UIButtonTypeDetailDisclosure: {
-            CGRect frame = CGRectMake(0, 0, detailDisclosureButtonImage.size.width, detailDisclosureButtonImage.size.height);
-            UIButton* button = [[UIButton alloc] init];
-            button.frame = frame;
-            [button setImage:detailDisclosureButtonImage forState:UIControlStateNormal];
-            [button setImage:detailDisclosureButtonImagePressed forState:UIControlStateHighlighted];
-            return [button autorelease];
-        }
-
         case UIButtonTypeRoundedRect:
+        case UIButtonTypeDetailDisclosure:
         case UIButtonTypeInfoLight:
         case UIButtonTypeInfoDark:
         case UIButtonTypeContactAdd:
             return [[[UIRoundedRectButton alloc] init] autorelease];
             
         case UIButtonTypeCustom:
-        default: {
-            return [[[UIButton alloc] init] autorelease];
-        }
+        default:
+            return [[[self alloc] init] autorelease];
     }
 }
 
-- (void) _commonInitForUIButton
+- (id)initWithFrame:(CGRect)frame
 {
-    _buttonFlags.buttonType = UIButtonTypeCustom;
-    _content = [[NSMutableDictionary alloc] init];
-    _titleLabel = [[UILabel alloc] init];
-    _imageView = [[UIImageView alloc] init];
-    _backgroundImageView = [[UIImageView alloc] init];
-    _adjustsImageWhenHighlighted = YES;
-    _adjustsImageWhenDisabled = YES;
-    _showsTouchWhenHighlighted = NO;
-    
-    self.opaque = NO;
-    _titleLabel.lineBreakMode = UILineBreakModeMiddleTruncation;
-    _titleLabel.backgroundColor = [UIColor clearColor];
-    _titleLabel.textAlignment = UITextAlignmentLeft;
-    _titleLabel.shadowOffset = CGSizeZero;
-    [self addSubview:_backgroundImageView];
-    [self addSubview:_imageView];
-    [self addSubview:_titleLabel];
-}
-
-- (id) initWithFrame:(CGRect)frame
-{
-    if (nil != (self = [super initWithFrame:frame])) {
-        [self _commonInitForUIButton];
-    }
-    return self;
-}
-
-- (id) initWithCoder:(NSCoder*)coder
-{
-    if (nil != (self = [super initWithCoder:coder])) {
-        [self _commonInitForUIButton];
-        if ([coder containsValueForKey:kUIAdjustsImageWhenDisabledKey]) {
-            self.adjustsImageWhenDisabled = [coder decodeBoolForKey:kUIAdjustsImageWhenDisabledKey];
-        }
-        if ([coder containsValueForKey:kUIAdjustsImageWhenHighlightedKey]) {
-            self.adjustsImageWhenHighlighted = [coder decodeBoolForKey:kUIAdjustsImageWhenHighlightedKey];
-        }
-        if ([coder containsValueForKey:kUIButtonStatefulContentKey]) {
-            [_content release], _content = [[coder decodeObjectForKey:kUIButtonStatefulContentKey] retain];
-        }
-        if ([coder containsValueForKey:kUIButtonTypeKey]) {
-            _buttonFlags.buttonType = [coder decodeIntegerForKey:kUIButtonTypeKey];
-        }
-        if ([coder containsValueForKey:kUIFontKey]) {
-            self.titleLabel.font = [coder decodeObjectForKey:kUIFontKey];
-        }
+    if ((self=[super initWithFrame:frame])) {
+        _buttonType = UIButtonTypeCustom;
+        _content = [[NSMutableDictionary alloc] init];
+        _titleLabel = [[UILabel alloc] init];
+        _imageView = [[UIImageView alloc] init];
+        _backgroundImageView = [[UIImageView alloc] init];
+        _adjustsImageWhenHighlighted = YES;
+        _adjustsImageWhenDisabled = YES;
+        _showsTouchWhenHighlighted = NO;
+        
+        self.opaque = NO;
+        _titleLabel.lineBreakMode = UILineBreakModeMiddleTruncation;
+        _titleLabel.backgroundColor = [UIColor clearColor];
+        _titleLabel.textAlignment = UITextAlignmentLeft;
+        _titleLabel.shadowOffset = CGSizeZero;
+        [self addSubview:_backgroundImageView];
+        [self addSubview:_imageView];
+        [self addSubview:_titleLabel];
     }
     return self;
 }
@@ -182,16 +96,6 @@ inline static NSNumber* _keyForState(NSInteger state)
     [_adjustedHighlightImage release];
     [_adjustedDisabledImage release];
     [super dealloc];
-}
-
-- (UIButtonType) buttonType
-{
-    return _buttonFlags.buttonType;
-}
-
-- (void) _setButtonType:(UIButtonType)buttonType
-{
-    _buttonFlags.buttonType = buttonType;
 }
 
 - (NSString *)currentTitle
@@ -229,23 +133,25 @@ inline static NSNumber* _keyForState(NSInteger state)
     return [UIColor whiteColor];
 }
 
+- (id)_contentForState:(UIControlState)state type:(NSString *)type
+{
+    return [[_content objectForKey:type] objectForKey:[NSNumber numberWithInt:state]];
+}
+
+- (id)_normalContentForState:(UIControlState)state type:(NSString *)type
+{
+    return [self _contentForState:state type:type] ?: [self _contentForState:UIControlStateNormal type:type];
+}
+
 - (void)_updateContent
 {
     const UIControlState state = self.state;
     _titleLabel.text = [self titleForState:state];
     _titleLabel.textColor = [self titleColorForState:state] ?: [self _defaultTitleColor];
     _titleLabel.shadowColor = [self titleShadowColorForState:state] ?: [self _defaultTitleShadowColor];
-	
-	if(self.reversesTitleShadowWhenHighlighted) {
-		if(!self.highlighted && CGSizeEqualToSize(originalShadowOffset, CGSizeZero)) {
-			originalShadowOffset = self.titleLabel.shadowOffset;
-		}
-		
-		self.titleLabel.shadowOffset = CGSizeMake(self.titleLabel.shadowOffset.width, self.highlighted ? -originalShadowOffset.height : originalShadowOffset.height);
-	}
     
-    UIImage *image = [[_content objectForKey:_keyForState(state)] image];
-    UIImage *backgroundImage = [[_content objectForKey:_keyForState(state)] backgroundImage];
+    UIImage *image = [self _contentForState:state type:UIButtonContentTypeImage];
+    UIImage *backgroundImage = [self _contentForState:state type:UIButtonContentTypeBackgroundImage];
     
     if (!image) {
         image = [self imageForState:state];	// find the correct default image to show
@@ -279,56 +185,43 @@ inline static NSNumber* _keyForState(NSInteger state)
     [self setNeedsLayout];
 }
 
+- (void)_setContent:(id)value forState:(UIControlState)state type:(NSString *)type
+{
+    NSMutableDictionary *typeContent = [_content objectForKey:type];
+    
+    if (!typeContent) {
+        typeContent = [[[NSMutableDictionary alloc] init] autorelease];
+        [_content setObject:typeContent forKey:type];
+    }
+    
+    NSNumber *key = [NSNumber numberWithInt:state];
+    if (value) {
+        [typeContent setObject:value forKey:key];
+    } else {
+        [typeContent removeObjectForKey:key];
+    }
+    
+    [self _updateContent];
+}
+
 - (void)setTitle:(NSString *)title forState:(UIControlState)state
 {
-    id key = _keyForState(state);
-    UIButtonContent* content = [_content objectForKey:key];
-    if (!content) {
-        content = [[UIButtonContent alloc] init];
-        [_content setValue:content forKey:key];
-        [content release];
-    }
-    content.title = title;
-    [self _updateContent];
+    [self _setContent:title forState:state type:UIButtonContentTypeTitle];
 }
 
-- (void)setTitleColor:(UIColor *)titleColor forState:(UIControlState)state
+- (void)setTitleColor:(UIColor *)color forState:(UIControlState)state
 {
-    id key = _keyForState(state);
-    UIButtonContent* content = [_content objectForKey:key];
-    if (!content) {
-        content = [[UIButtonContent alloc] init];
-        [_content setValue:content forKey:key];
-        [content release];
-    }
-    content.titleColor = titleColor;
-    [self _updateContent];
+    [self _setContent:color forState:state type:UIButtonContentTypeTitleColor];
 }
 
-- (void)setTitleShadowColor:(UIColor *)shadowColor forState:(UIControlState)state
+- (void)setTitleShadowColor:(UIColor *)color forState:(UIControlState)state
 {
-    id key = _keyForState(state);
-    UIButtonContent* content = [_content objectForKey:key];
-    if (!content) {
-        content = [[UIButtonContent alloc] init];
-        [_content setValue:content forKey:key];
-        [content release];
-    }
-    content.shadowColor = shadowColor;
-    [self _updateContent];
+    [self _setContent:color forState:state type:UIButtonContentTypeTitleShadowColor];
 }
 
-- (void)setBackgroundImage:(UIImage *)backgroundImage forState:(UIControlState)state
+- (void)setBackgroundImage:(UIImage *)image forState:(UIControlState)state
 {
-    id key = _keyForState(state);
-    UIButtonContent* content = [_content objectForKey:key];
-    if (!content) {
-        content = [[UIButtonContent alloc] init];
-        [_content setValue:content forKey:key];
-        [content release];
-    }
-    content.backgroundImage = backgroundImage;
-    [self _updateContent];
+    [self _setContent:image forState:state type:UIButtonContentTypeBackgroundImage];
 }
 
 - (void)setImage:(UIImage *)image forState:(UIControlState)state
@@ -336,45 +229,32 @@ inline static NSNumber* _keyForState(NSInteger state)
     [_adjustedHighlightImage release];
     [_adjustedDisabledImage release];
     _adjustedDisabledImage = _adjustedHighlightImage = nil;
-    id key = _keyForState(state);
-    UIButtonContent* content = [_content objectForKey:key];
-    if (!content) {
-        content = [[UIButtonContent alloc] init];
-        [_content setValue:content forKey:key];
-        [content release];
-    }
-    content.image = image;
-    if (state == UIControlStateNormal) {
-        [_imageView setImage:image];
-    } else if (state == UIControlStateHighlighted) {
-        [_imageView setHighlightedImage:image];
-    }
-    [self _updateContent];
+    [self _setContent:image forState:state type:UIButtonContentTypeImage];
 }
 
 - (NSString *)titleForState:(UIControlState)state
 {
-    return [[_content objectForKey:_keyForState(state)] title] ?: [[_content objectForKey:kUIControlStateNormalKey] title] ?: [[UIButton _defaultContentForType:_buttonFlags.buttonType andState:state] title];
+    return [self _normalContentForState:state type:UIButtonContentTypeTitle];
 }
 
 - (UIColor *)titleColorForState:(UIControlState)state
 {
-    return [[_content objectForKey:_keyForState(state)] titleColor] ?: [[_content objectForKey:kUIControlStateNormalKey] titleColor] ?: [[UIButton _defaultContentForType:_buttonFlags.buttonType andState:state] titleColor];
+    return [self _normalContentForState:state type:UIButtonContentTypeTitleColor];
 }
 
 - (UIColor *)titleShadowColorForState:(UIControlState)state
 {
-    return [[_content objectForKey:_keyForState(state)] shadowColor] ?: [[_content objectForKey:kUIControlStateNormalKey] shadowColor] ?: [[UIButton _defaultContentForType:_buttonFlags.buttonType andState:state] shadowColor];
+    return [self _normalContentForState:state type:UIButtonContentTypeTitleShadowColor];
 }
 
 - (UIImage *)backgroundImageForState:(UIControlState)state
 {
-    return [[_content objectForKey:_keyForState(state)] backgroundImage] ?: [[_content objectForKey:kUIControlStateNormalKey] backgroundImage] ?: [[UIButton _defaultContentForType:_buttonFlags.buttonType andState:state] backgroundImage];
+    return [self _normalContentForState:state type:UIButtonContentTypeBackgroundImage];
 }
 
 - (UIImage *)imageForState:(UIControlState)state
 {
-    return [[_content objectForKey:_keyForState(state)] image] ?: [[_content objectForKey:kUIControlStateNormalKey] image] ?: [[UIButton _defaultContentForType:_buttonFlags.buttonType andState:state] image];
+    return [self _normalContentForState:state type:UIButtonContentTypeImage];
 }
 
 - (CGRect)backgroundRectForBounds:(CGRect)bounds
@@ -419,7 +299,7 @@ inline static NSNumber* _keyForState(NSInteger state)
     
     switch (self.contentHorizontalAlignment) {
         case UIControlContentHorizontalAlignmentCenter:
-            rect.origin.x += floor((contentRect.size.width/2.f) - (rect.size.width/2.f));
+            rect.origin.x += floorf((contentRect.size.width/2.f) - (rect.size.width/2.f));
             break;
             
         case UIControlContentHorizontalAlignmentRight:
@@ -437,7 +317,7 @@ inline static NSNumber* _keyForState(NSInteger state)
     
     switch (self.contentVerticalAlignment) {
         case UIControlContentVerticalAlignmentCenter:
-            rect.origin.y += floor((contentRect.size.height/2.f) - (rect.size.height/2.f));
+            rect.origin.y += floorf((contentRect.size.height/2.f) - (rect.size.height/2.f));
             break;
             
         case UIControlContentVerticalAlignmentBottom:
@@ -488,14 +368,6 @@ inline static NSNumber* _keyForState(NSInteger state)
     _imageView.frame = [self imageRectForContentRect:contentRect];
 }
 
-- (void)_stateWillChange {
-	[super _stateWillChange];
-	
-	if(!self.highlighted) {
-		originalShadowOffset = self.titleLabel.shadowOffset;
-	}
-}
-
 - (void)_stateDidChange
 {
     [super _stateDidChange];
@@ -529,11 +401,6 @@ inline static NSNumber* _keyForState(NSInteger state)
     // This isn't a strong decision, but there's a few places in Twitterrific where passing a right click through a button doesn't feel right.
     // It also doesn't feel immediately right to treat a right-click on a button as a normal click event, either, so this seems to be a
     // decent way to avoid the problem in general and define a kind of "standard" behavior in this case.
-}
-
-
--(void)encodeWithCoder:(NSCoder *)coder {
-    // TODO: LATER
 }
 
 @end

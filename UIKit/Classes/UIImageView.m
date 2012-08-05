@@ -31,9 +31,12 @@
 #import "UIImage.h"
 #import "UIGraphics.h"
 #import "UIColor.h"
+#import "UIImageAppKitIntegration.h"
+#import "UIWindow.h"
+#import "UIImage+UIPrivate.h"
+#import "UIScreen.h"
 #import <QuartzCore/QuartzCore.h>
-
-static NSString* const kUIImageKey = @"UIImage";
+#import "UIImageRep.h"
 
 static NSArray *CGImagesWithUIImages(NSArray *images)
 {
@@ -44,14 +47,9 @@ static NSArray *CGImagesWithUIImages(NSArray *images)
     return CGImages;
 }
 
-@implementation UIImageView 
-@synthesize image = _image;
-@synthesize animationImages = _animationImages;
-@synthesize animationDuration = _animationDuration;
-@synthesize highlightedImage = _highlightedImage;
-@synthesize highlighted = _highlighted;
-@synthesize animationRepeatCount = _animationRepeatCount;
-@synthesize highlightedAnimationImages = _highlightedAnimationImages;
+@implementation UIImageView
+@synthesize image=_image, animationImages=_animationImages, animationDuration=_animationDuration, highlightedImage=_highlightedImage, highlighted=_highlighted;
+@synthesize animationRepeatCount=_animationRepeatCount, highlightedAnimationImages=_highlightedAnimationImages;
 
 + (BOOL)_instanceImplementsDrawRect
 {
@@ -68,27 +66,18 @@ static NSArray *CGImagesWithUIImages(NSArray *images)
     return self;
 }
 
-- (id) initWithCoder:(NSCoder*)coder
-{
-    if (nil != (self = [super initWithCoder:coder])) {
-        if ([coder containsValueForKey:kUIImageKey]) {
-            self.image = [coder decodeObjectForKey:kUIImageKey];
-        }
-    }
-    return self;
-}
-
-- (void) encodeWithCoder:(NSCoder*)coder
-{
-    [self doesNotRecognizeSelector:_cmd];
-}
-
 - (id)initWithImage:(UIImage *)theImage
 {
-    CGSize imageSize = theImage.size;
-    if ((self = [self initWithFrame:CGRectMake(0,0,imageSize.width,imageSize.height)])) {
+    CGRect frame = CGRectZero;
+
+    if (theImage) {
+        frame.size = theImage.size;
+    }
+        
+    if ((self = [self initWithFrame:frame])) {
         self.image = theImage;
     }
+
     return self;
 }
 
@@ -103,7 +92,7 @@ static NSArray *CGImagesWithUIImages(NSArray *images)
 
 - (CGSize)sizeThatFits:(CGSize)size
 {
-    return _image.size;
+    return _image? _image.size : CGSizeZero;
 }
 
 - (void)setHighlighted:(BOOL)h
@@ -155,11 +144,14 @@ static NSArray *CGImagesWithUIImages(NSArray *images)
 
 - (void)displayLayer:(CALayer *)theLayer
 {
+    [super displayLayer:theLayer];
+    
     UIImage *displayImage = (_highlighted && _highlightedImage)? _highlightedImage : _image;
+    const CGFloat scale = self.window.screen.scale;
     const CGRect bounds = self.bounds;
     
     if (displayImage && self._hasResizableImage && bounds.size.width > 0 && bounds.size.height > 0) {
-        UIGraphicsBeginImageContext(bounds.size);
+        UIGraphicsBeginImageContextWithOptions(bounds.size, NO, scale);
         [displayImage drawInRect:bounds];
         displayImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
@@ -173,7 +165,7 @@ static NSArray *CGImagesWithUIImages(NSArray *images)
         imageBounds.origin = CGPointZero;
         imageBounds.size = displayImage.size;
 
-        UIGraphicsBeginImageContext(imageBounds.size);
+        UIGraphicsBeginImageContextWithOptions(imageBounds.size, NO, scale);
         
         CGBlendMode blendMode = kCGBlendModeNormal;
         CGFloat alpha = 1;
@@ -192,7 +184,12 @@ static NSArray *CGImagesWithUIImages(NSArray *images)
         UIGraphicsEndImageContext();
     }
 
-    theLayer.contents = (__bridge id)[displayImage CGImage];
+    UIImageRep *bestRepresentation = [displayImage _bestRepresentationForProposedScale:scale];
+    theLayer.contents = (__bridge id)bestRepresentation.CGImage;
+    
+    if ([theLayer respondsToSelector:@selector(setContentsScale:)]) {
+        [theLayer setContentsScale:bestRepresentation.scale];
+    }
 }
 
 - (void)_displayIfNeededChangingFromOldSize:(CGSize)oldSize toNewSize:(CGSize)newSize

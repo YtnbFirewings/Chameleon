@@ -28,17 +28,16 @@
  */
 
 #import "UINibLoading.h"
-#import "UINib.h"
-
-
-NSString* const UINibExternalObjects = @"UINibExternalObjects";
-
 
 @implementation NSBundle (UINibLoading)
-
-- (NSArray*) loadNibNamed:(NSString*)name owner:(id)owner options:(NSDictionary*)options
+- (NSArray *)loadNibNamed:(NSString *)name owner:(id)owner options:(NSDictionary *)options
 {
-    return [[UINib nibWithNibName:name bundle:self] instantiateWithOwner:owner options:options];
+    return nil;
 }
+@end
 
+@implementation NSObject (UINibLoading)
+- (void)awakeFromNib
+{
+}
 @end

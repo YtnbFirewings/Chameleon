@@ -82,6 +82,7 @@ typedef enum {
 } UIControlContentVerticalAlignment;
 
 @interface UIControl : UIView {
+@protected
     NSMutableArray *_registeredActions;
     BOOL _tracking;
     BOOL _touchInside;

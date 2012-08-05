@@ -28,7 +28,6 @@
  */
 
 #import "UIRoundedRectButton.h"
-#import "UIButton+UIPrivate.h"
 #import "UIImage+UIPrivate.h"
 #import "UIColor.h"
 
@@ -37,7 +36,7 @@
 - (id)initWithFrame:(CGRect)frame
 {
     if ((self=[super initWithFrame:frame])) {
-        [self _setButtonType:UIButtonTypeRoundedRect];
+        _buttonType = UIButtonTypeRoundedRect;
     }
     return self;
 }

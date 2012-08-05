@@ -30,6 +30,5 @@
 #import "UIControl.h"
 
 @interface UIControl (UIPrivate)
-- (void)_stateWillChange;
 - (void)_stateDidChange;
 @end

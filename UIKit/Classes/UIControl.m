@@ -33,35 +33,17 @@
 #import "UIApplication.h"
 #import "UIControlAction.h"
 
-@implementation UIControl 
-@synthesize tracking = _tracking;
-@synthesize touchInside = _touchInside;
-@synthesize selected = _selected;
-@synthesize enabled = _enabled;
-@synthesize highlighted = _highlighted;
-@synthesize contentHorizontalAlignment = _contentHorizontalAlignment;
-@synthesize contentVerticalAlignment = _contentVerticalAlignment;
-
-- (void) _commonInitForUIControl
-{
-    _registeredActions = [[NSMutableArray alloc] init];
-    self.enabled = YES;
-    self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-    self.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-}
+@implementation UIControl
+@synthesize tracking=_tracking, touchInside=_touchInside, selected=_selected, enabled=_enabled, highlighted=_highlighted;
+@synthesize contentHorizontalAlignment=_contentHorizontalAlignment, contentVerticalAlignment=_contentVerticalAlignment;
 
 - (id)initWithFrame:(CGRect)frame
 {
     if ((self=[super initWithFrame:frame])) {
-        [self _commonInitForUIControl];
-    }
-    return self;
-}
-
-- (id)initWithCoder:(NSCoder*)coder
-{
-    if ((self=[super initWithCoder:coder])) {
-        [self _commonInitForUIControl];
+        _registeredActions = [[NSMutableArray alloc] init];
+        self.enabled = YES;
+        self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+        self.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     }
     return self;
 }
@@ -239,11 +221,6 @@
     _tracking = NO;
 }
 
-- (void)_stateWillChange
-{
-	
-}
-
 - (void)_stateDidChange
 {
     [self setNeedsDisplay];
@@ -253,7 +230,6 @@
 - (void)setEnabled:(BOOL)newEnabled
 {
     if (newEnabled != _enabled) {
-		[self _stateWillChange];
         _enabled = newEnabled;
         [self _stateDidChange];
         self.userInteractionEnabled = _enabled;
@@ -263,7 +239,6 @@
 - (void)setHighlighted:(BOOL)newHighlighted
 {
     if (newHighlighted != _highlighted) {
-		[self _stateWillChange];
         _highlighted = newHighlighted;
         [self _stateDidChange];
     }
@@ -272,7 +247,6 @@
 - (void)setSelected:(BOOL)newSelected
 {
     if (newSelected != _selected) {
-		[self _stateWillChange];
         _selected = newSelected;
         [self _stateDidChange];
     }
