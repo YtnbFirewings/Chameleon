@@ -20,12 +20,14 @@
 		0509085315CEA34A008BB6BB /* MAZeroingWeakRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 0509083715CEA34A008BB6BB /* MAZeroingWeakRef.h */; };
 		0509085415CEA34A008BB6BB /* MAZeroingWeakRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 0509083815CEA34A008BB6BB /* MAZeroingWeakRef.m */; };
 		0509085515CEA34A008BB6BB /* MAZeroingWeakRefNativeZWRNotAllowedTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 0509083915CEA34A008BB6BB /* MAZeroingWeakRefNativeZWRNotAllowedTable.h */; };
-		05D98F1F15CDE24800B9AB97 /* <UISegmentedControl> button-highlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D98F1915CDE24700B9AB97 /* <UISegmentedControl> button-highlighted.png */; };
-		05D98F2015CDE24800B9AB97 /* <UISegmentedControl> button.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D98F1A15CDE24700B9AB97 /* <UISegmentedControl> button.png */; };
-		05D98F2115CDE24800B9AB97 /* <UISegmentedControl> divider-highlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D98F1B15CDE24800B9AB97 /* <UISegmentedControl> divider-highlighted.png */; };
-		05D98F2215CDE24800B9AB97 /* <UISegmentedControl> divider.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D98F1C15CDE24800B9AB97 /* <UISegmentedControl> divider.png */; };
-		05D98F2315CDE24800B9AB97 /* <UISwitch> off.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D98F1D15CDE24800B9AB97 /* <UISwitch> off.png */; };
-		05D98F2415CDE24800B9AB97 /* <UISwitch> on.png in Resources */ = {isa = PBXBuildFile; fileRef = 05D98F1E15CDE24800B9AB97 /* <UISwitch> on.png */; };
+		05AD612F15D97B0E0067FABB /* <UISegmentedControl> button-highlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612715D97B0E0067FABB /* <UISegmentedControl> button-highlighted.png */; };
+		05AD613015D97B0E0067FABB /* <UISegmentedControl> button.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612815D97B0E0067FABB /* <UISegmentedControl> button.png */; };
+		05AD613115D97B0E0067FABB /* <UISegmentedControl> divider-highlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612915D97B0E0067FABB /* <UISegmentedControl> divider-highlighted.png */; };
+		05AD613215D97B0E0067FABB /* <UISegmentedControl> divider.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612A15D97B0E0067FABB /* <UISegmentedControl> divider.png */; };
+		05AD613315D97B0E0067FABB /* <UISwitch> off.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612B15D97B0E0067FABB /* <UISwitch> off.png */; };
+		05AD613415D97B0E0067FABB /* <UISwitch> off@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612C15D97B0E0067FABB /* <UISwitch> off@2x.png */; };
+		05AD613515D97B0E0067FABB /* <UISwitch> on.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612D15D97B0E0067FABB /* <UISwitch> on.png */; };
+		05AD613615D97B0E0067FABB /* <UISwitch> on@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 05AD612E15D97B0E0067FABB /* <UISwitch> on@2x.png */; };
 		1413D21213D72A06004D77E9 /* UIScrollViewAnimation.h in Headers */ = {isa = PBXBuildFile; fileRef = 1413D20C13D72A06004D77E9 /* UIScrollViewAnimation.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		1413D21313D72A06004D77E9 /* UIScrollViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1413D20D13D72A06004D77E9 /* UIScrollViewAnimation.m */; };
 		1413D21413D72A06004D77E9 /* UIScrollViewAnimationDeceleration.h in Headers */ = {isa = PBXBuildFile; fileRef = 1413D20E13D72A06004D77E9 /* UIScrollViewAnimationDeceleration.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -332,12 +334,14 @@
 		0509083715CEA34A008BB6BB /* MAZeroingWeakRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MAZeroingWeakRef.h; sourceTree = "<group>"; };
 		0509083815CEA34A008BB6BB /* MAZeroingWeakRef.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MAZeroingWeakRef.m; sourceTree = "<group>"; };
 		0509083915CEA34A008BB6BB /* MAZeroingWeakRefNativeZWRNotAllowedTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MAZeroingWeakRefNativeZWRNotAllowedTable.h; sourceTree = "<group>"; };
-		05D98F1915CDE24700B9AB97 /* <UISegmentedControl> button-highlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "<UISegmentedControl> button-highlighted.png"; sourceTree = "<group>"; };
-		05D98F1A15CDE24700B9AB97 /* <UISegmentedControl> button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "<UISegmentedControl> button.png"; sourceTree = "<group>"; };
-		05D98F1B15CDE24800B9AB97 /* <UISegmentedControl> divider-highlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "<UISegmentedControl> divider-highlighted.png"; sourceTree = "<group>"; };
-		05D98F1C15CDE24800B9AB97 /* <UISegmentedControl> divider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "<UISegmentedControl> divider.png"; sourceTree = "<group>"; };
-		05D98F1D15CDE24800B9AB97 /* <UISwitch> off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "<UISwitch> off.png"; sourceTree = "<group>"; };
-		05D98F1E15CDE24800B9AB97 /* <UISwitch> on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "<UISwitch> on.png"; sourceTree = "<group>"; };
+		05AD612715D97B0E0067FABB /* <UISegmentedControl> button-highlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISegmentedControl> button-highlighted.png"; path = "Resources/<UISegmentedControl> button-highlighted.png"; sourceTree = "<group>"; };
+		05AD612815D97B0E0067FABB /* <UISegmentedControl> button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISegmentedControl> button.png"; path = "Resources/<UISegmentedControl> button.png"; sourceTree = "<group>"; };
+		05AD612915D97B0E0067FABB /* <UISegmentedControl> divider-highlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISegmentedControl> divider-highlighted.png"; path = "Resources/<UISegmentedControl> divider-highlighted.png"; sourceTree = "<group>"; };
+		05AD612A15D97B0E0067FABB /* <UISegmentedControl> divider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISegmentedControl> divider.png"; path = "Resources/<UISegmentedControl> divider.png"; sourceTree = "<group>"; };
+		05AD612B15D97B0E0067FABB /* <UISwitch> off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISwitch> off.png"; path = "Resources/<UISwitch> off.png"; sourceTree = "<group>"; };
+		05AD612C15D97B0E0067FABB /* <UISwitch> off@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISwitch> off@2x.png"; path = "Resources/<UISwitch> off@2x.png"; sourceTree = "<group>"; };
+		05AD612D15D97B0E0067FABB /* <UISwitch> on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISwitch> on.png"; path = "Resources/<UISwitch> on.png"; sourceTree = "<group>"; };
+		05AD612E15D97B0E0067FABB /* <UISwitch> on@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "<UISwitch> on@2x.png"; path = "Resources/<UISwitch> on@2x.png"; sourceTree = "<group>"; };
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -752,12 +756,14 @@
 				148DEE93156E945800E7B8DE /* <UIToolbar> button-highlighted@2x.png */,
 				14DD1C351289B4D500DCF231 /* <UIToolbar> button.png */,
 				148DEE94156E945800E7B8DE /* <UIToolbar> button@2x.png */,
-				05D98F1915CDE24700B9AB97 /* <UISegmentedControl> button-highlighted.png */,
-				05D98F1A15CDE24700B9AB97 /* <UISegmentedControl> button.png */,
-				05D98F1B15CDE24800B9AB97 /* <UISegmentedControl> divider-highlighted.png */,
-				05D98F1C15CDE24800B9AB97 /* <UISegmentedControl> divider.png */,
-				05D98F1D15CDE24800B9AB97 /* <UISwitch> off.png */,
-				05D98F1E15CDE24800B9AB97 /* <UISwitch> on.png */,
+				05AD612715D97B0E0067FABB /* <UISegmentedControl> button-highlighted.png */,
+				05AD612815D97B0E0067FABB /* <UISegmentedControl> button.png */,
+				05AD612915D97B0E0067FABB /* <UISegmentedControl> divider-highlighted.png */,
+				05AD612A15D97B0E0067FABB /* <UISegmentedControl> divider.png */,
+				05AD612B15D97B0E0067FABB /* <UISwitch> off.png */,
+				05AD612C15D97B0E0067FABB /* <UISwitch> off@2x.png */,
+				05AD612D15D97B0E0067FABB /* <UISwitch> on.png */,
+				05AD612E15D97B0E0067FABB /* <UISwitch> on@2x.png */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 			);
 			name = Resources;
@@ -1291,13 +1297,15 @@
 				1426A02515701598004C2C9A /* <UIPopoverView> arrow-left@2x.png in Resources */,
 				1426A02615701598004C2C9A /* <UIPopoverView> arrow-right@2x.png in Resources */,
 				1426A02715701598004C2C9A /* <UIPopoverView> arrow-top@2x.png in Resources */,
-				05D98F1F15CDE24800B9AB97 /* <UISegmentedControl> button-highlighted.png in Resources */,
-				05D98F2015CDE24800B9AB97 /* <UISegmentedControl> button.png in Resources */,
-				05D98F2115CDE24800B9AB97 /* <UISegmentedControl> divider-highlighted.png in Resources */,
-				05D98F2215CDE24800B9AB97 /* <UISegmentedControl> divider.png in Resources */,
-				05D98F2315CDE24800B9AB97 /* <UISwitch> off.png in Resources */,
-				05D98F2415CDE24800B9AB97 /* <UISwitch> on.png in Resources */,
 				0509084915CEA34A008BB6BB /* README.markdown in Resources */,
+				05AD612F15D97B0E0067FABB /* <UISegmentedControl> button-highlighted.png in Resources */,
+				05AD613015D97B0E0067FABB /* <UISegmentedControl> button.png in Resources */,
+				05AD613115D97B0E0067FABB /* <UISegmentedControl> divider-highlighted.png in Resources */,
+				05AD613215D97B0E0067FABB /* <UISegmentedControl> divider.png in Resources */,
+				05AD613315D97B0E0067FABB /* <UISwitch> off.png in Resources */,
+				05AD613415D97B0E0067FABB /* <UISwitch> off@2x.png in Resources */,
+				05AD613515D97B0E0067FABB /* <UISwitch> on.png in Resources */,
+				05AD613615D97B0E0067FABB /* <UISwitch> on@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
