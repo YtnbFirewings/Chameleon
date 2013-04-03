@@ -17,18 +17,18 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		05F2B515170BC51F001D1D11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 780E7540133AC53400D8C77B /* UIKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
+			remoteInfo = UIKit;
+		};
 		14FB13391230307C00B615ED /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 14FB13351230307C00B615ED /* UIKit.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 8DC2EF5B0486A6940098B216;
-			remoteInfo = UIKit;
-		};
-		14FB133C1230308E00B615ED /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 14FB13351230307C00B615ED /* UIKit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = UIKit;
 		};
 		780E7544133AC53400D8C77B /* PBXContainerItemProxy */ = {
@@ -173,7 +173,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				14FB133D1230308E00B615ED /* PBXTargetDependency */,
+				05F2B516170BC51F001D1D11 /* PBXTargetDependency */,
 			);
 			name = MessageUI;
 			productInstallPath = "$(HOME)/Library/Frameworks";
@@ -259,10 +259,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		14FB133D1230308E00B615ED /* PBXTargetDependency */ = {
+		05F2B516170BC51F001D1D11 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = UIKit;
-			targetProxy = 14FB133C1230308E00B615ED /* PBXContainerItemProxy */;
+			targetProxy = 05F2B515170BC51F001D1D11 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -271,6 +271,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../build/Debug;
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -284,7 +285,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = MessageUI;
-				SYMROOT = ../build;
+				SYMROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -294,6 +295,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../build/Release;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -305,7 +307,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = MessageUI;
-				SYMROOT = ../build;
+				SYMROOT = "";
 				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = framework;
 			};
